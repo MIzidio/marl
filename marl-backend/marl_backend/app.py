@@ -1,9 +1,19 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 import numpy as np
 from  marl_backend.schemas import PolicyIterationSchema, OptimalPolicyResponse
 from http import HTTPStatus
+import json
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Permite todas as origens (em desenvolvimento)
+    allow_credentials=True,
+    allow_methods=["*"],  # Permite todos os métodos
+    allow_headers=["*"],  # Permite todos os headers
+)
 
 @app.get('/')
 def read_root():
@@ -11,21 +21,25 @@ def read_root():
 
 @app.post('/police_iteraction/', status_code=HTTPStatus.OK, response_model=OptimalPolicyResponse)
 def police_iteraction(request: PolicyIterationSchema):
-    random_actions = np.random.choice(tuple(P[0].keys()), len(P))
+    mdp_dict = request.mdp.root
+
+    random_actions = np.random.choice(tuple(mdp_dict[0].keys()), len(mdp_dict))
     pi = {s:a for s, a in enumerate(random_actions)}
 
     while True:
 
-        V = policy_evaluation(pi, P, gamma, theta)
-        new_pi = policy_improvement(V, P, gamma)
+        V = policy_evaluation(pi, mdp_dict, request.gamma, request.theta)
+        new_pi = policy_improvement(V, mdp_dict, request.gamma)
 
         if new_pi == pi:
             break
 
         pi = new_pi
 
+    pi = {int(state): int(action) for state, action in pi.items()}
+
     return OptimalPolicyResponse(
-        police = pi
+        policy = pi
     )
 
 def policy_improvement(V, P, gamma=1.0):

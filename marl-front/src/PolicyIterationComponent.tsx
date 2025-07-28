@@ -1,18 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { usePolicyIteration } from './hooks/usePolicyIteration';
-
-type Transition = [number, number, number, boolean]; // [prob, next_state, reward, done]
-
-interface StateActions {
-  [action: number]: Transition[];
-}
-
-interface MDP {
-  [state: number]: StateActions;
-}
+import type { MDP } from './types/types'
 
 const PolicyIterationComponent: React.FC = () => {
-  // Estado inicial do MDP
   const initialMdp: MDP = {
     0: {
       0: [[1.0, 0, 0.0, true]],
@@ -30,7 +20,6 @@ const PolicyIterationComponent: React.FC = () => {
         [0.2, 0, 0.0, true],
       ],
     },
-    // ... adicione mais estados conforme necessário
   };
 
   const [mdp, setMdp] = useState<MDP>(initialMdp);
@@ -41,7 +30,7 @@ const PolicyIterationComponent: React.FC = () => {
   const [theta, setTheta] = useState<number>(1e-10);
   const [isValidMdp, setIsValidMdp] = useState<boolean>(true);
 
-  const { mutate, isLoading, isError, error, data } = usePolicyIteration();
+  const { mutate, isPending, isError, error, data } = usePolicyIteration();
 
   // Atualiza o MDP quando o texto muda (com validação)
   useEffect(() => {
@@ -133,10 +122,10 @@ const PolicyIterationComponent: React.FC = () => {
 
         <button 
           type="submit" 
-          disabled={isLoading || !isValidMdp}
+          disabled={isPending || !isValidMdp}
           className="submit-button"
         >
-          {isLoading ? 'Processing...' : 'Run Policy Iteration'}
+          {isPending ? 'Processing...' : 'Run Policy Iteration'}
         </button>
       </form>
 
@@ -163,7 +152,7 @@ const PolicyIterationComponent: React.FC = () => {
         </div>
       )}
 
-      <style jsx>{`
+      <style>{`
         .policy-iteration-container {
           max-width: 800px;
           margin: 0 auto;
@@ -218,7 +207,7 @@ const PolicyIterationComponent: React.FC = () => {
         .results {
           margin-top: 20px;
           padding: 15px;
-          background-color: #f5f5f5;
+          background-color: #242424;
           border-radius: 4px;
         }
         .meta-data {

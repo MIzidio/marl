@@ -1,23 +1,11 @@
 import { useMutation } from '@tanstack/react-query';
-import { runPolicyIteration } from '../api/api';
-
-interface PolicyIterationResponse {
-  policy: Record<number, number>;
-  gamma_used: number;
-  theta_used: number;
-  message: string;
-}
-
-interface PolicyIterationRequest {
-  mdp: MDP;
-  gamma?: number;
-  theta?: number;
-}
+import { runPolicyIteraction } from '../api/api';
+import type { PolicyIterationRequest, PolicyIterationResponse } from '../types/types'
 
 export const usePolicyIteration = () => {
-  return useMutation(
-    (params) => runPolicyIteration(params),
+  return useMutation<PolicyIterationResponse, Error, PolicyIterationRequest>(
     {
+      mutationFn: runPolicyIteraction,
       onError: (error: Error) => {
         console.error('Error in policy iteration:', error.message);
       },

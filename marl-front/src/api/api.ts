@@ -1,29 +1,17 @@
-import axios from 'axios';
+import axios from 'axios'
+import type { PolicyIterationRequest, PolicyIterationResponse } from '../types/types'
 
 const API_URL = 'http://127.0.0.1:8000';
 
-interface PolicyIterationResponse {
-  policy: Record<number, number>;
-  gamma_used: number;
-  theta_used: number;
-  message: string;
-}
-
-interface PolicyIterationRequest {
-  mdp: MDP;
-  gamma?: number;
-  theta?: number;
-}
-
-export const runPolicyIteration = async (
-  params: PolicyIterationRequest
+export const runPolicyIteraction = async (
+  { mdp, gamma, theta }: PolicyIterationRequest
 ): Promise<PolicyIterationResponse> => {
   const response = await axios.post<PolicyIterationResponse>(
-    `${API_URL}/policy_iteration/`,
+    `${API_URL}/police_iteraction/`,
     {
-      mdp: params.mdp,
-      gamma: params.gamma ?? 1.0, // Valores padrão
-      theta: params.theta ?? 1e-10,
+      mdp: mdp,
+      gamma: gamma ?? 1.0, // Valores padrão
+      theta: theta ?? 1e-10,
     }
   );
   return response.data;
